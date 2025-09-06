@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambah Orang ke Grup</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .input-section {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        
+        .input-section input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+            font-size: 16px;
+        }
+        
+        .input-section button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .input-section button:hover {
+            background-color: #45a049;
+        }
+        
+        .members-list {
+            list-style-type: none;
+        }
+        
+        .members-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .members-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .delete-btn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .delete-btn:hover {
+            background-color: #d32f2f;
+        }
+        
+        .empty-state {
+            text-align: center;
+            color: #888;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Anggota Grup</h1>
+        
+        <div class="input-section">
+            <input type="text" id="nameInput" placeholder="Masukkan nama anggota...">
+            <button id="addButton">Tambah</button>
+        </div>
+        
+        <ul id="membersList" class="members-list">
+            <!-- Daftar anggota akan muncul di sini -->
+        </ul>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const nameInput = document.getElementById('nameInput');
+            const addButton = document.getElementById('addButton');
+            const membersList = document.getElementById('membersList');
+            
+            // Muat data dari localStorage saat halaman dimuat
+            let members = JSON.parse(localStorage.getItem('groupMembers')) || [];
+            
+            // Fungsi untuk menampilkan anggota
+            function renderMembers() {
+                membersList.innerHTML = '';
+                
+                if (members.length === 0) {
+                    membersList.innerHTML = '<div class="empty-state">Belum ada anggota grup</div>';
+                    return;
+                }
+                
+                members.forEach((member, index) => {
+                    const li = document.createElement('li');
+                    
+                    const nameSpan = document.createElement('span');
+                    nameSpan.textContent = member;
+                    
+                    const deleteButton = document.createElement('button');
+                    deleteButton.textContent = 'Hapus';
+                    deleteButton.classList.add('delete-btn');
+                    deleteButton.addEventListener('click', () => {
+                        deleteMember(index);
+                    });
+                    
+                    li.appendChild(nameSpan);
+                    li.appendChild(deleteButton);
+                    membersList.appendChild(li);
+                });
+            }
+            
+            // Fungsi untuk menambahkan anggota
+            function addMember() {
+                const name = nameInput.value.trim();
+                
+                if (name) {
+                    members.push(name);
+                    localStorage.setItem('groupMembers', JSON.stringify(members));
+                    nameInput.value = '';
+                    renderMembers();
+                } else {
+                    alert('Masukkan nama terlebih dahulu!');
+                }
+            }
+            
+            // Fungsi untuk menghapus anggota
+            function deleteMember(index) {
+                if (confirm('Apakah Anda yakin ingin menghapus anggota ini?')) {
+                    members.splice(index, 1);
+                    localStorage.setItem('groupMembers', JSON.stringify(members));
+                    renderMembers();
+                }
+            }
+            
+            // Event listener untuk tombol tambah
+            addButton.addEventListener('click', addMember);
+            
+            // Event listener untuk menekan Enter di input
+            nameInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addMember();
+                }
+            });
+            
+            // Tampilkan anggota saat halaman dimuat
+            renderMembers();
+        });
+    </script>
+</body>
+</html>
